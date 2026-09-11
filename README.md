@@ -53,7 +53,7 @@ There are two distinct actors/users that the app will be build around: Guest and
 4. If the AI API goes down or times out, the terminal shall gracefully degrade, displaying a friendly CLI error message rather than crashing or hanging indefinitely
 
 ## Tech Stack
-<img width="708" height="1418" alt="image" src="https://github.com/user-attachments/assets/e884ea80-ece4-4016-8773-cbe5ff4b0800" />
+<img width="300" height="600" alt="image" src="https://github.com/user-attachments/assets/e884ea80-ece4-4016-8773-cbe5ff4b0800" />
 
 ### Frontend
 **Svelte** - I may be a tried and true React developer but that cannot outweigh the fact that Svelte seems like a good fit for a terminal app thats highly interactive and state-heavy. the big tradeoff is a smaller developer ecosystem and the ability to leverage Vercel to its fullest.
