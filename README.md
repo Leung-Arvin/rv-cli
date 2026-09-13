@@ -56,8 +56,31 @@ There are two distinct actors/users that the app will be build around: Guest and
 <img width="300" height="600" alt="image" src="https://github.com/user-attachments/assets/e884ea80-ece4-4016-8773-cbe5ff4b0800" />
 
 ### Frontend
-**Svelte** - I may be a tried and true React developer but that cannot outweigh the fact that Svelte seems like a good fit for a terminal app thats highly interactive and state-heavy. the big tradeoff is a smaller developer ecosystem and the ability to leverage Vercel to its fullest.
+**Svelte**: 
+  At it's core, this isn't a generic content site or dashbord, its a terminal. The screen will update constantly like the cursor will be blink 60 times a second or characters have to stream in from the AI one-by-one. 
+  Svelte's reactivity model is ideal for this situation. 
+  1. There's no virtual DOM overhead where React re-renders component tress when state changes, svelte compiles code down to precise DOM updates.
+  2. Svelte has built in stores with `writable` and `derived` stores for state management
+  3. There's also smaller bundle size since Svelte ships virtually no runtime code to the browser
 
+  Tradeoff: Svelte has a smaller ecosystem than React but this project doesn't need a massive one.
+
+**Terminal Emulator**:
+  I could spend days trying to perfectly recreate a terminal using divs and CSS but there's a lot that goes into it that would have to be tested and debugged
+  - Cursor positioning and blinking
+  - Text selection and copying
+  - ANSI escape code parsing for colors
+  - Scrollback buffer managemenet
+  - Canvas-based rendering
+
+  Xterm.js solves all of this in house. It powers VS Code's terminal, GitHub Codespaces, and Google Cloud Shell. It renders to a <canvas> element so it can handle massive scrollback buffers without lowering performance
+
+  Tradeoff: Xterm.js is ~200KB so its a going to not necessarily lightweight. To workaround, we can imply lazy-loading only after initial banner renders so the user sees content instantly while the terminal engine loads in the background.
+
+  **Vite**:
+  Kind of a no brainer. Vite has become a essential part of all my web projects since its so simple to use. It uses native ES modules during development for instant hot reload and Rollup for production builds. 
+  Tradeoff: There's Turbopack or esbuild but ones mostly tied to Next.js and the other lacks plugin ecosystem/same dev server features as vite
+  
 ### "Backend"
 **Cloudflare Workers** - Since I'm already thinking of using Cloudflare agents, sticking to the cloudflare ecosystem will be nice. Although Cloudflare does have dodgy availability, it cannot undermine how much of todays software architecture is built on them.
 
