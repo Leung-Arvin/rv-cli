@@ -24,7 +24,7 @@ There are two distinct actors/users that the app will be build around: Guest and
 ### The AI Agent 
 1. The user shall be able to ask the AI agent questions about me by typing `ama <question>` or `ask <question`
 2. The user shall see the AI's response stream into the terminal in real-time rather than waiting for the whole response to generate
-3. The user shall be clearly notified via a terminal errorm essage if they exceed the rate limit for AI queries
+3. The user shall be clearly notified via a terminal error message if they exceed the rate limit for AI queries
 4. The user shall be able to stop a streaming AI response midway by pressing `Ctrl+C` or `Esc`
 5. The user shall be able to submit feedback if the AI provides incorrect information by typing `feedback <correction>`
 
@@ -82,6 +82,113 @@ There are two distinct actors/users that the app will be build around: Guest and
   Tradeoff: There's Turbopack or esbuild but ones mostly tied to Next.js and the other lacks plugin ecosystem/same dev server features as vite
   
 ### "Backend"
-**Cloudflare Workers** - Since I'm already thinking of using Cloudflare agents, sticking to the cloudflare ecosystem will be nice. Although Cloudflare does have dodgy availability, it cannot undermine how much of todays software architecture is built on them.
+**Cloudflare Workers**: Since I'm already thinking of using Cloudflare agents, sticking to the cloudflare ecosystem will be nice. Although Cloudflare does have dodgy availability, it cannot undermine how much of todays software architecture is built on them.
 
+The backend needs to do three key things:
+1. Route API requests
+2. Enforce rate limits
+3. Call thje AI API and stream response back
+
+Cloudflare workers run on the edge which means lower latency since it processed closer to the user and there's no cold starts
+
+Tradeoff: Workers have 10MB bundle size limit and a 30-second CPU time limit per request at least on the free tier. My computations arent going to be super heavy so this should be fine.
+
+### AI Provider
+
+**Cloudflare Workers AI**: Sticking to the Cloudflare ecosystem, there AI agents are nicely packaged with their workers so thats a nice bonus. For a portfolio AMA, Llama 3.1 8B is more than enough where its fast, cheap and good enough to answer most questions about my career, skills, and blog spots.
+
+Tradeoff: Workers AI models are open-source so they arent as smart as Claude or GPT-4 but for a this tiny project, it should suffice. 
+
+### Storage & State
+
+**Cloudflare KV + Vectorize + D1**: These tools will provide the app three types of storage:
+1. Rate Limiting: Track how many requests each IP has made. KV is perfect.
+2. RAG: If blog becomes larger, embed it into vectorize so the AI can search it for context
+3. Feedback labs: store user corrections in D1 so I can review them
+
+Tradeoff: D1 is relatively knew launching in 2024 and so it has fewer features than Postgres. But for logging feedback, it should be enough. Redis would also be a good choice to switch to later down the line for rate limiting but KV is already apart of cloudflare's ecosystem so I dont have to manage as many services.
+
+### Deployment
+
+**Cloudflare Pages + Cloudflare Workers**: Pages provides a 500 builds/month and unlimited bandwidth. Workers can be easily integrated via wrangler.toml, where one deployment command can push both. Both are served from Cloudflare's edge, so the site is super duper fast. 
+
+Tradeoff: CF pages doesnt have the same preview deployment UX as Vercel which is a bit of a pain but for a solo portfolio seems chill.
+
+## App Scaffolding
+
+### Frontend App Scaffolding
+
+```
+  src/
+      lib/
+          terminal/
+              Terminal.svelte # Big wrapper, initalizes xterm.js 
+              Prompt.svelte # Handles cursor, prompt text, input capture
+              OutputLine.svelte # Renders a single line with ANSI parsing
+              StatusBar.svelte # Bottom var for current dir, theme, and AI status
+          state/
+              stores.ts # Svelte state stores
+              actions.ts # Functions to safely update state
+          commands/
+              router.ts # parses input, routes to correct handler
+              handlers/
+                  ls.ts # Handles ls command
+                  cd.ts # handles cd command
+                  cat.ts # handles cat command
+                  theme.ts # handles theme command
+                  ama.ts # calls /api/ama, handles streaming
+              types.ts # Typescript interfaces for commands
+          vfs/
+              parser.ts # Converts JSON VFS to navigable trees
+              navigator.ts # Handles cd, ls logic against VFS
+              types.ts # FileNode, DirectoryNode interfaces
+          themes/
+              themes.json # Color definition for each theme
+              applyTheme.ts # Updates CSS variables based on theme
+    routes/
+          +page.svelte # Main page, renders Terminal component
+    app.css # Global styles
+```
+### Backend Worker Scaffolding
+```
+  worker/
+      src/
+          index.ts # Main entry point, routes requests
+          routes/
+              ama.ts # POST /api/ama - AI agent endpoint
+              feedback.ts # POST /api/feedback - Log user corrections
+          middleware/
+              rateLimiter.ts # Checks KV for IP limits
+              cors.ts # Handles CORs headers
+          ai/
+              agent.ts # Formats system prompt and calls workers AI
+              prompts.ts # System prompt templates
+              stream.ts # Handles streaming response back to client
+          utils/
+              env.ts # Typescript types for environment variables
+      wrangler.toml # Cloudflare Worker config file
+```
+
+### Interface Contracts
+To prevent spaghetti code and keep maintenance easier, each module will define its public API.
+
+**Example: Command Handler Interface**
+```
+export interface CommandText {
+  currentDirectory: string;
+  vfs: VirtualFileSystem;
+  args: string[];
+}
+
+export interface CommandResult {
+  output: string;
+  newDirectory?: string;
+  isError?: boolean;
+
+export interface CommandHandler {
+  execute(ctx: CommandContext): CommandResult;
+}
+```
+
+Every command handler like `ls.ts` must implement this interface. This makes it simpler to add new commands later
 
