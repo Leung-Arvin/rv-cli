@@ -1,5 +1,5 @@
 # rv-cli
-Welcome! This is rv-CLI, my personal browser-based terminal portfolio. The motivation behind this project is the desire to stretch my fingers on some code and just make something fun and memorable. I also want to see what's the fuss about ai agents since I never dabbled in using them too much incorporating into a web app. This is not my announcement that I'm becoming an AI engineer! 
+Welcome! This is rv-CLI, my personal browser-based terminal portfolio. The motivation behind this project is the desire to stretch my fingers on some code and just make something fun and memorable. I also want to see what's the fuss about AI agents since I never dabbled in incorporating them into a web app. This is not my announcement that I'm becoming an AI engineer!
 
 # Software Design Documentation
 
