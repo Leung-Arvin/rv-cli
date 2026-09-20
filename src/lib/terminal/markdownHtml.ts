@@ -11,10 +11,21 @@ const escapeHtml = (text: string) =>
  * Escapes first, formats second. Content is Ours, but the Agent's Output runs
  * through here too, so this never trusts its Input.
  */
-export function markdownToHtml(source: string): string {
+export function markdownToHtml(
+	source: string,
+	resolveImageSrc: (src: string) => string | undefined = () => undefined
+): string {
 	return escapeHtml(source)
 		.split(/\r?\n\r?\n/)
 		.map((block) => {
+			const image = /^\s*!\[([^\]]*)\]\(([^)]+)\)\s*$/.exec(block);
+			if (image) {
+				const url = resolveImageSrc(image[2]);
+				return url
+					? `<img src="${url}" alt="${image[1]}" loading="lazy" />`
+					: `<p class="missing">[${image[1] || image[2]}]</p>`;
+			}
+
 			const heading = /^(#{1,6})\s+(.*)$/.exec(block.trim());
 			if (heading) return `<h${heading[1].length}>${inline(heading[2])}</h${heading[1].length}>`;
 

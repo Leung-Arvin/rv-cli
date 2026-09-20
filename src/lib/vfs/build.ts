@@ -25,6 +25,36 @@ function emptyDir(name: string, path: string): DirNode {
 	return { kind: 'dir', name, path, description: descriptions[path], children: new Map() };
 }
 
+const MEDIA_TYPES: Record<string, string> = {
+	png: 'image/png',
+	jpg: 'image/jpeg',
+	jpeg: 'image/jpeg',
+	gif: 'image/gif',
+	webp: 'image/webp'
+};
+
+function mediaTypeOf(name: string): string | undefined {
+	return MEDIA_TYPES[name.split('.').pop()?.toLowerCase() ?? ''];
+}
+
+/** Walks a glob Key into the Tree, creating Directories on the Way. */
+function placeFile(root: DirNode, key: string): { dir: DirNode; name: string } {
+	const segments = key.replace(/^\/content\//, '').split('/');
+	const name = segments.pop() ?? '';
+
+	let dir = root;
+	for (const segment of segments) {
+		const path = `${dir.path}/${segment}`;
+		let next = dir.children.get(segment);
+		if (!next || next.kind !== 'dir') {
+			next = emptyDir(segment, path);
+			dir.children.set(segment, next);
+		}
+		dir = next;
+	}
+	return { dir, name };
+}
+
 /**
  * Builds the Filesystem from content/ at Build time. Vite inlines every Match,
  * so nothing is fetched at Runtime and `ls` never waits on the Network.
@@ -34,26 +64,30 @@ export function buildVfs(
 		eager: true,
 		query: '?raw',
 		import: 'default'
+	}) as Record<string, string>,
+	assets: Record<string, string> = import.meta.glob('/content/**/*.{png,jpg,jpeg,gif,webp}', {
+		eager: true,
+		query: '?url',
+		import: 'default'
 	}) as Record<string, string>
 ): VirtualFileSystem {
 	const root = emptyDir('', '');
 
+	for (const [key, url] of Object.entries(assets)) {
+		const { dir, name } = placeFile(root, key);
+		dir.children.set(name, {
+			kind: 'file',
+			name,
+			path: `${dir.path}/${name}`,
+			text: '',
+			url,
+			mediaType: mediaTypeOf(name),
+			description: descriptions[`${dir.path}/${name}`]
+		});
+	}
+
 	for (const [key, raw] of Object.entries(modules)) {
-		const segments = key.replace(/^\/content\//, '').split('/');
-		const fileName = segments.pop();
-		if (!fileName) continue;
-
-		let dir = root;
-		for (const segment of segments) {
-			const path = `${dir.path}/${segment}`;
-			let next = dir.children.get(segment);
-			if (!next || next.kind !== 'dir') {
-				next = emptyDir(segment, path);
-				dir.children.set(segment, next);
-			}
-			dir = next;
-		}
-
+		const { dir, name: fileName } = placeFile(root, key);
 		const path = `${dir.path}/${fileName}`;
 		const { meta, body } = parseFrontMatter(raw);
 		const file: FileNode = {

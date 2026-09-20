@@ -7,6 +7,8 @@ date: 2026-09-20
 
 The Terminal You are reading this in.
 
+![The Terminal on a cold Boot](rv-cli.png)
+
 **What It is.** A SvelteKit App wrapped around xterm.js, deployed as a single
 Cloudflare Worker that serves both the Frontend and the `/api` Routes. The
 Filesystem You are browsing is generated at Build time from a Folder of Markdown
@@ -18,7 +20,8 @@ its Prompt, and every Byte It returns gets stripped of Escape Codes before It
 touches the Screen. If someone injects It, the worst They get is a rude Sentence.
 
 **What I would change.** The Mobile Fallback drops the Terminal Metaphor
-entirely, which I still feel slightly guilty about. Tab Completion is not wired
-up. Both are on the List.
+entirely, which I still feel slightly guilty about. Screenshots draw inline
+through the iTerm Image Protocol, which is the kind of Detail nobody asks for
+and I could not resist.
 
 Source: [github.com/Leung-Arvin/rv-cli](https://github.com/Leung-Arvin/rv-cli)

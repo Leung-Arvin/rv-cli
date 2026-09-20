@@ -5,6 +5,9 @@ export interface FileNode {
 	text: string;
 	description?: string;
 	date?: string;
+	/** Set for Images. Their Bytes live at this URL rather than in `text`. */
+	url?: string;
+	mediaType?: string;
 }
 
 export interface DirNode {

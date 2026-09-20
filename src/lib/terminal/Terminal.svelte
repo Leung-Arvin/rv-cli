@@ -30,10 +30,11 @@
 		let observer: ResizeObserver | undefined;
 
 		const boot = async () => {
-			const [{ Terminal }, { FitAddon }, { WebLinksAddon }] = await Promise.all([
+			const [{ Terminal }, { FitAddon }, { WebLinksAddon }, { ImageAddon }] = await Promise.all([
 				import('@xterm/xterm'),
 				import('@xterm/addon-fit'),
 				import('@xterm/addon-web-links'),
+				import('@xterm/addon-image'),
 				import('@xterm/xterm/css/xterm.css')
 			]);
 			if (disposed) return;
@@ -58,6 +59,8 @@
 			const fit = new FitAddon();
 			terminal.loadAddon(fit);
 			terminal.loadAddon(new WebLinksAddon((_event, uri) => openIfAllowed(uri)));
+			// Screenshots draw in the Scrollback the way iTerm2 and kitty draw Them.
+			terminal.loadAddon(new ImageAddon({ sixelSupport: false }));
 
 			terminal.open(host);
 			fit.fit();
@@ -113,7 +116,12 @@
 			if (input.trim()) {
 				busy = true;
 				controller = new AbortController();
-				const result = await run(input, { currentDirectory: cwd, vfs }, writer, controller.signal);
+				const result = await run(
+					input,
+					{ currentDirectory: cwd, vfs, columns: terminal.cols },
+					writer,
+					controller.signal
+				);
 				busy = false;
 				controller = null;
 

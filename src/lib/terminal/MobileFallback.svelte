@@ -4,6 +4,7 @@
 	import { listDir } from '../vfs/navigator';
 	import type { DirNode, VfsNode, VirtualFileSystem } from '../vfs/types';
 	import { owner, tagline } from './banner';
+	import { resolveImage } from './image';
 	import { markdownToHtml } from './markdownHtml';
 
 	let { vfs }: { vfs: VirtualFileSystem } = $props();
@@ -82,7 +83,14 @@
 	{/if}
 
 	{#if open && open.kind === 'file'}
-		<article>{@html markdownToHtml(open.text)}</article>
+		{@const file = open}
+		<article>
+			{#if file.url}
+				<img src={file.url} alt={file.name} />
+			{:else}
+				{@html markdownToHtml(file.text, (src) => resolveImage(vfs, file.path, src))}
+			{/if}
+		</article>
 	{:else}
 		{#each entries as entry (entry.path)}
 			<button class="row" onclick={() => select(entry)}>
@@ -178,6 +186,17 @@
 	}
 	article :global(a) {
 		color: var(--term-alt);
+	}
+	article img,
+	article :global(img) {
+		display: block;
+		width: 100%;
+		border: 1px solid var(--chrome-line);
+		border-radius: 6px;
+		margin: 12px 0;
+	}
+	article :global(.missing) {
+		color: var(--term-dim);
 	}
 	.ask {
 		display: flex;

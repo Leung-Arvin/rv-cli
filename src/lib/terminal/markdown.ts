@@ -1,37 +1,52 @@
 import { bold, c } from './ansi';
 
+export type MarkdownToken =
+	| { kind: 'line'; text: string }
+	| { kind: 'image'; src: string; alt: string };
+
+const STANDALONE_IMAGE = /^\s*!\[([^\]]*)\]\(([^)]+)\)\s*$/;
+
 /**
  * Just enough Markdown to read a Post in a Terminal. Not a Parser — a Reader.
+ * An Image on its own Line becomes a Token the Caller can draw; anything else
+ * is Text that is ready to write.
  */
-export function renderMarkdown(source: string): string[] {
-	const lines: string[] = [];
+export function renderMarkdown(source: string): MarkdownToken[] {
+	const tokens: MarkdownToken[] = [];
+	const line = (text: string) => tokens.push({ kind: 'line', text });
 
 	for (const raw of source.split(/\r?\n/)) {
+		const image = STANDALONE_IMAGE.exec(raw);
+		if (image) {
+			tokens.push({ kind: 'image', alt: image[1], src: image[2] });
+			continue;
+		}
+
 		const heading = /^(#{1,6})\s+(.*)$/.exec(raw);
 		if (heading) {
-			lines.push(bold(c.dir(heading[2])));
+			line(bold(c.dir(heading[2])));
 			continue;
 		}
 
 		if (/^\s*[-*]\s+/.test(raw)) {
-			lines.push(raw.replace(/^(\s*)[-*]\s+/, (_, indent) => `${indent}  ${c.dir('·')} `));
+			line(raw.replace(/^(\s*)[-*]\s+/, (_, indent) => `${indent}  ${c.dir('·')} `));
 			continue;
 		}
 
 		if (/^\s*>/.test(raw)) {
-			lines.push(c.dim(raw.replace(/^\s*>\s?/, '  │ ')));
+			line(c.dim(raw.replace(/^\s*>\s?/, '  │ ')));
 			continue;
 		}
 
 		if (/^\s*(---|===)\s*$/.test(raw)) {
-			lines.push(c.dim('─'.repeat(40)));
+			line(c.dim('─'.repeat(40)));
 			continue;
 		}
 
-		lines.push(inline(raw));
+		line(inline(raw));
 	}
 
-	return lines;
+	return tokens;
 }
 
 function inline(text: string): string {

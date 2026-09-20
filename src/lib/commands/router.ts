@@ -20,7 +20,7 @@ function nearest(name: string): string | undefined {
 
 export async function run(
 	line: string,
-	state: { currentDirectory: string; vfs: VirtualFileSystem },
+	state: { currentDirectory: string; vfs: VirtualFileSystem; columns?: number },
 	term: TerminalWriter,
 	signal: AbortSignal
 ): Promise<CommandResult> {
@@ -37,7 +37,12 @@ export async function run(
 
 	try {
 		return await handler.execute(
-			{ currentDirectory: state.currentDirectory, vfs: state.vfs, args },
+			{
+				currentDirectory: state.currentDirectory,
+				vfs: state.vfs,
+				args,
+				columns: state.columns ?? 80
+			},
 			term,
 			signal
 		);

@@ -6,7 +6,7 @@ const vfs = buildVfs({
 	'/content/About.md': 'I write Software.',
 	'/content/Blog/first.md': '---\ndate: 2026-01-02\n---\nHello.',
 	'/content/Blog/second.md': 'Also Hello.'
-});
+}, {});
 
 describe('resolvePath', () => {
 	it('treats Home, tilde and empty as the Root', () => {

@@ -2,12 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { buildVfs } from '../vfs/build';
 import { columnize, complete } from './complete';
 
-const vfs = buildVfs({
-	'/content/About.md': 'I write Software.',
-	'/content/Blog/why-a-terminal.md': 'Hello.',
-	'/content/Blog/why-i-left.md': 'Also Hello.',
-	'/content/Projects/rv-cli.md': 'This Site.'
-});
+const vfs = buildVfs(
+	{
+		'/content/About.md': 'I write Software.',
+		'/content/Blog/why-a-terminal.md': 'Hello.',
+		'/content/Blog/why-i-left.md': 'Also Hello.',
+		'/content/Projects/rv-cli.md': 'This Site.'
+	},
+	{ '/content/Projects/rv-cli.png': '/assets/rv-cli.png' }
+);
 
 const at = (line: string, currentDirectory = '') =>
 	complete(line, line.length, { currentDirectory, vfs });

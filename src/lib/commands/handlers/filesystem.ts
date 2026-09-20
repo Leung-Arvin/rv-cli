@@ -1,7 +1,8 @@
 import { c, padEnd } from '../../terminal/ansi';
+import { inlineImage, resolveImage } from '../../terminal/image';
 import { renderMarkdown } from '../../terminal/markdown';
 import { displayPath, listDir, lookup, resolvePath } from '../../vfs/navigator';
-import { fail, ok, type CommandHandler } from '../types';
+import { fail, ok, type CommandHandler, type TerminalWriter } from '../types';
 
 export const ls: CommandHandler = {
 	name: 'ls',
@@ -89,8 +90,44 @@ export const cat: CommandHandler = {
 		}
 
 		term.writeLine('');
-		for (const line of renderMarkdown(node.text)) term.writeLine(line);
+
+		if (node.url) {
+			await draw(term, node.url, node.name, ctx.columns);
+			term.writeLine('');
+			return ok();
+		}
+
+		for (const token of renderMarkdown(node.text)) {
+			if (token.kind === 'line') {
+				term.writeLine(token.text);
+				continue;
+			}
+
+			const url = resolveImage(ctx.vfs, node.path, token.src);
+			if (!url) {
+				term.writeLine(c.dim(`  [${token.alt || token.src}]`));
+				continue;
+			}
+			await draw(term, url, token.alt || token.src, ctx.columns);
+		}
+
 		term.writeLine('');
 		return ok();
 	}
 };
+
+/** Images are drawn inline, but a Terminal that cannot show One still says what it was. */
+async function draw(
+	term: TerminalWriter,
+	url: string,
+	label: string,
+	columns: number
+): Promise<void> {
+	try {
+		term.write(await inlineImage(url, Math.max(20, Math.min(columns - 4, 72))));
+		term.writeLine('');
+		term.writeLine(c.dim(`  ${label}`));
+	} catch {
+		term.writeLine(c.dim(`  [${label}] ${c.link(url)}`));
+	}
+}

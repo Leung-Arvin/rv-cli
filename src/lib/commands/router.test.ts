@@ -3,11 +3,14 @@ import { buildVfs } from '../vfs/build';
 import { run, tokenize } from './router';
 import type { TerminalWriter } from './types';
 
-const vfs = buildVfs({
-	'/content/About.md': 'I write Software.',
-	'/content/Blog/first.md': 'Hello.',
-	'/content/Blog/second.md': 'Also Hello.'
-});
+const vfs = buildVfs(
+	{
+		'/content/About.md': 'I write Software.',
+		'/content/Blog/first.md': 'Hello.',
+		'/content/Blog/second.md': 'Also Hello.'
+	},
+	{}
+);
 
 function recorder() {
 	const lines: string[] = [];

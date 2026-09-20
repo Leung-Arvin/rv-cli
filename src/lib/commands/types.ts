@@ -5,6 +5,8 @@ export interface CommandContext {
 	currentDirectory: string;
 	vfs: VirtualFileSystem;
 	args: string[];
+	/** Terminal Width. Images and Column Layouts need to know It. */
+	columns: number;
 }
 
 /**
