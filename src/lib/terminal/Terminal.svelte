@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Terminal as XTerm } from '@xterm/xterm';
 	import { onMount } from 'svelte';
+	import { columnize, complete } from '../commands/complete';
 	import { History } from '../commands/history';
 	import { run } from '../commands/router';
 	import type { TerminalWriter } from '../commands/types';
@@ -136,6 +137,21 @@
 				case '\r':
 					void submit();
 					return;
+				case '\t': {
+					const filled = complete(line, cursor, { currentDirectory: cwd, vfs });
+					line = filled.line;
+					cursor = filled.cursor;
+
+					if (filled.candidates.length > 1) {
+						terminal.write('\r\n');
+						const painted = filled.candidates.map((name) =>
+							name.endsWith('/') ? c.dir(name) : c.file(name)
+						);
+						for (const row of columnize(painted, terminal.cols)) writer.writeLine(row);
+					}
+					redraw();
+					return;
+				}
 				case '\x7f':
 					if (cursor > 0) {
 						line = line.slice(0, cursor - 1) + line.slice(cursor);

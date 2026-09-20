@@ -16,7 +16,7 @@ export const help: CommandHandler = {
 			term.writeLine(padEnd(c.prompt(command.name), width) + c.dim(command.description));
 		}
 		term.writeLine('');
-		term.writeLine(c.dim('Arrow Keys walk Your History. Tab is not wired up yet, sorry.'));
+		term.writeLine(c.dim('Arrow Keys walk Your History. Tab completes Commands and Paths.'));
 		term.writeLine('');
 		return ok();
 	}
