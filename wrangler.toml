@@ -10,6 +10,11 @@ binding = "ASSETS"
 [ai]
 binding = "AI"
 
+# Created with `wrangler ai gateway create`. Caches repeated Questions so a
+# Visitor asking what everyone asks costs nothing the second Time.
+[vars]
+AI_GATEWAY_ID = "rv-cli"
+
 # The System Prompt lives here so the Agent's Personality changes without a Deploy.
 [[kv_namespaces]]
 binding = "PROMPTS"

@@ -10,6 +10,7 @@ export const commands: CommandHandler[] = [
 	pwd,
 	cat,
 	ama,
+	{ ...ama, name: 'ask', hidden: true },
 	feedback,
 	socials,
 	theme,

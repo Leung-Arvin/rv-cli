@@ -11,7 +11,7 @@ function railed(term: TerminalWriter, chunk: string): void {
 
 export const ama: CommandHandler = {
 	name: 'ama',
-	description: 'Ask My Agent about Me',
+	description: 'Ask My Agent about Me (`ask` works too)',
 	async execute(ctx, term, signal) {
 		const question = ctx.args.join(' ').trim();
 		if (!question) {

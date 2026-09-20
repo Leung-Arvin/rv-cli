@@ -27,7 +27,7 @@ export const POST: RequestHandler = async ({ request, platform, getClientAddress
 
 	if (env?.FEEDBACK_DB) {
 		await env.FEEDBACK_DB.prepare(
-			'INSERT INTO feedback (correction, created_at) VALUES (?, datetime("now"))'
+			"INSERT INTO feedback (correction, created_at) VALUES (?, datetime('now'))"
 		)
 			.bind(correction.trim())
 			.run();

@@ -74,14 +74,22 @@ export const POST: RequestHandler = async ({ request, platform, getClientAddress
 
 	const systemPrompt = (await env.PROMPTS?.get('system')) ?? SYSTEM_PROMPT_FALLBACK;
 
-	const result = (await env.AI.run(MODEL, {
-		stream: true,
-		max_tokens: 300,
-		messages: [
-			{ role: 'system', content: systemPrompt },
-			{ role: 'user', content: question }
-		]
-	})) as ReadableStream<Uint8Array>;
+	// The Gateway caches repeated Questions and logs Cost. Without It the Call
+	// still works, it just goes straight to Workers AI.
+	const options = env.AI_GATEWAY_ID ? { gateway: { id: env.AI_GATEWAY_ID } } : undefined;
+
+	const result = (await env.AI.run(
+		MODEL,
+		{
+			stream: true,
+			max_tokens: 300,
+			messages: [
+				{ role: 'system', content: systemPrompt },
+				{ role: 'user', content: question }
+			]
+		},
+		options
+	)) as ReadableStream<Uint8Array>;
 
 	return new Response(result.pipeThrough(sseToText()), {
 		headers: {

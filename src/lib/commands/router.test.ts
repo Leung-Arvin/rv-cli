@@ -74,6 +74,13 @@ describe('theme', () => {
 	});
 });
 
+describe('ask', () => {
+	it('is an Alias for ama, as the Doc promises', async () => {
+		const { text } = await exec('ask what do You build?');
+		expect(text).toContain('rv-bot');
+	});
+});
+
 describe('unknown Commands', () => {
 	it('answers instead of going silent', async () => {
 		const { result, text } = await exec('lss');
