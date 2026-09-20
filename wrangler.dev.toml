@@ -1,0 +1,6 @@
+# Local Dev only. No Bindings, on purpose: Workers AI, KV and D1 are remote-only,
+# and running without Them is how I check that the Site degrades gracefully.
+# Deploys use wrangler.toml.
+name = "rv-cli-dev"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]

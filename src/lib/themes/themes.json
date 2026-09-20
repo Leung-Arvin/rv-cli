@@ -1,0 +1,95 @@
+{
+	"carbon": {
+		"label": "Carbon",
+		"chrome": {
+			"bar": "#1E1A14",
+			"line": "#2E281F",
+			"page": "#0C0A07"
+		},
+		"xterm": {
+			"background": "#14110D",
+			"foreground": "#E6DFD1",
+			"cursor": "#EF9F27",
+			"cursorAccent": "#14110D",
+			"selectionBackground": "#3A3227",
+			"black": "#14110D",
+			"red": "#E2706A",
+			"green": "#97C459",
+			"yellow": "#EF9F27",
+			"blue": "#85B7EB",
+			"magenta": "#F0997B",
+			"cyan": "#5DCAA5",
+			"white": "#E6DFD1",
+			"brightBlack": "#8A8175",
+			"brightRed": "#F09595",
+			"brightGreen": "#C0DD97",
+			"brightYellow": "#FAC775",
+			"brightBlue": "#B5D4F4",
+			"brightMagenta": "#F5C4B3",
+			"brightCyan": "#9FE1CB",
+			"brightWhite": "#FFFBF2"
+		}
+	},
+	"nord": {
+		"label": "Nord",
+		"chrome": {
+			"bar": "#1B222C",
+			"line": "#2A3441",
+			"page": "#0D1219"
+		},
+		"xterm": {
+			"background": "#141A22",
+			"foreground": "#C6D0DB",
+			"cursor": "#88C0D0",
+			"cursorAccent": "#141A22",
+			"selectionBackground": "#2E3A47",
+			"black": "#141A22",
+			"red": "#BF616A",
+			"green": "#A3BE8C",
+			"yellow": "#EBCB8B",
+			"blue": "#81A1C1",
+			"magenta": "#B48EAD",
+			"cyan": "#88C0D0",
+			"white": "#C6D0DB",
+			"brightBlack": "#5F6E7E",
+			"brightRed": "#D08770",
+			"brightGreen": "#B5CEA0",
+			"brightYellow": "#F0D9A4",
+			"brightBlue": "#9CB4CE",
+			"brightMagenta": "#C7A6C1",
+			"brightCyan": "#A3D2DE",
+			"brightWhite": "#ECEFF4"
+		}
+	},
+	"paper": {
+		"label": "Paper",
+		"chrome": {
+			"bar": "#E4E1D7",
+			"line": "#CFCBBF",
+			"page": "#DCD8CC"
+		},
+		"xterm": {
+			"background": "#F1EFE8",
+			"foreground": "#2C2C2A",
+			"cursor": "#BA7517",
+			"cursorAccent": "#F1EFE8",
+			"selectionBackground": "#D3D1C7",
+			"black": "#2C2C2A",
+			"red": "#A32D2D",
+			"green": "#3B6D11",
+			"yellow": "#854F0B",
+			"blue": "#185FA5",
+			"magenta": "#993C1D",
+			"cyan": "#0F6E56",
+			"white": "#2C2C2A",
+			"brightBlack": "#888780",
+			"brightRed": "#791F1F",
+			"brightGreen": "#27500A",
+			"brightYellow": "#633806",
+			"brightBlue": "#0C447C",
+			"brightMagenta": "#712B13",
+			"brightCyan": "#085041",
+			"brightWhite": "#444441"
+		}
+	}
+}
