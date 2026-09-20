@@ -44,6 +44,36 @@ describe('listDir', () => {
 		const names = listDir(vfs.root).map((node) => node.name);
 		expect(names).toEqual(['Blog', 'About.md']);
 	});
+
+	it('reads dated Entries newest first', () => {
+		const dated = buildVfs(
+			{
+				'/content/Career/old.md': '---\ndate: 2024-07-31\n---\nOld.',
+				'/content/Career/new.md': '---\ndate: 2026-08-31\n---\nNew.',
+				'/content/Career/middle.md': '---\ndate: 2025-12-31\n---\nMiddle.'
+			},
+			{}
+		);
+		const career = dated.root.children.get('Career');
+		expect(career?.kind).toBe('dir');
+		if (career?.kind !== 'dir') return;
+
+		expect(listDir(career).map((node) => node.name)).toEqual(['new.md', 'middle.md', 'old.md']);
+	});
+
+	it('sorts undated Entries after dated Ones', () => {
+		const mixed = buildVfs(
+			{
+				'/content/Career/undated.md': 'No Date.',
+				'/content/Career/dated.md': '---\ndate: 2025-01-01\n---\nDated.'
+			},
+			{}
+		);
+		const career = mixed.root.children.get('Career');
+		if (career?.kind !== 'dir') return;
+
+		expect(listDir(career).map((node) => node.name)).toEqual(['dated.md', 'undated.md']);
+	});
 });
 
 describe('displayPath', () => {

@@ -104,15 +104,27 @@ export function buildVfs(
 	return { root };
 }
 
-/** Directories first, then the configured Order, then alphabetical. */
+/**
+ * Directories first, then anything named in the configured Order, then newest
+ * first for Entries that carry a Date, then alphabetical. Careers and Blog Posts
+ * both want Recency, and neither should need listing in Config to get It.
+ */
 export function sortEntries(nodes: VfsNode[]): VfsNode[] {
 	return [...nodes].sort((a, b) => {
 		if (a.kind !== b.kind) return a.kind === 'dir' ? -1 : 1;
+
 		const ai = order.indexOf(a.name);
 		const bi = order.indexOf(b.name);
 		if (ai !== -1 && bi !== -1) return ai - bi;
 		if (ai !== -1) return -1;
 		if (bi !== -1) return 1;
+
+		const aDate = a.kind === 'file' ? a.date : undefined;
+		const bDate = b.kind === 'file' ? b.date : undefined;
+		if (aDate && bDate && aDate !== bDate) return aDate < bDate ? 1 : -1;
+		if (aDate !== undefined && bDate === undefined) return -1;
+		if (bDate !== undefined && aDate === undefined) return 1;
+
 		return a.name.localeCompare(b.name);
 	});
 }
