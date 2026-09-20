@@ -18,7 +18,7 @@ function recorder() {
 		clear: () => lines.splice(0, lines.length)
 	};
 	// Colors would make every Assertion unreadable.
-	return { writer, text: () => lines.join('\n').replace(/\[[0-9;]*m/g, '') };
+	return { writer, text: () => lines.join('\n').replace(/\x1b\[[0-9;]*m/g, '') };
 }
 
 const exec = async (line: string, currentDirectory = '') => {

@@ -23,17 +23,15 @@
 	{:else}
 		<Terminal {vfs} />
 	{/if}
-	<StatusBar {narrow} />
+	<StatusBar />
 </main>
 
 <style>
+	/* Edge to edge. A Terminal is the Window, not a Card inside One. */
 	main {
 		display: flex;
 		flex-direction: column;
 		height: 100dvh;
-		max-width: 1100px;
-		margin: 0 auto;
-		padding: 16px 16px 0;
 	}
 	main :global(> :first-child) {
 		flex: 1;
@@ -42,10 +40,5 @@
 	.frame {
 		overflow-y: auto;
 		background: var(--term-bg);
-		border-radius: 10px;
-	}
-	main :global(.bar) {
-		border-radius: 0 0 10px 10px;
-		margin-bottom: 16px;
 	}
 </style>

@@ -3,7 +3,6 @@ import {
 	agentStatus,
 	currentDirectory,
 	questionsLeft,
-	terminalReady,
 	themeName,
 	type AgentStatus
 } from './stores';
@@ -40,6 +39,3 @@ export function setQuestionsLeft(remaining: number): void {
 	questionsLeft.set(Math.max(0, remaining));
 }
 
-export function markTerminalReady(): void {
-	terminalReady.set(true);
-}

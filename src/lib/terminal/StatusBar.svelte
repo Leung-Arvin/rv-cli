@@ -1,13 +1,15 @@
 <script lang="ts">
-	import { agentStatus, promptPath, questionsLeft, terminalReady, themeName } from '../state/stores';
+	import { agentStatus, promptPath, questionsLeft, themeName } from '../state/stores';
 	import { getTheme } from '../themes/applyTheme';
-
-	let { narrow = false }: { narrow?: boolean } = $props();
 
 	let clock = $state('');
 	$effect(() => {
 		const tick = () => {
-			clock = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+			clock = new Date().toLocaleTimeString('en-US', {
+				hour: '2-digit',
+				minute: '2-digit',
+				hour12: false
+			});
 		};
 		tick();
 		const id = setInterval(tick, 30_000);
@@ -16,51 +18,71 @@
 
 	const agentLabel = $derived(
 		{
-			idle: 'Agent idle',
-			thinking: 'Agent thinking…',
-			streaming: 'Agent streaming…',
-			unreachable: 'Agent unreachable'
+			idle: 'agent idle',
+			thinking: 'agent thinking',
+			streaming: 'agent streaming',
+			unreachable: 'agent unreachable'
 		}[$agentStatus]
 	);
 </script>
 
+<!-- A tmux status line, not an App Bar: a Terminal is allowed to have One of these. -->
 <div class="bar">
-	<span>
-		<span class="alt">{$promptPath}</span>
-		<span class="dim">·</span>
-		{getTheme($themeName).label}
-		{#if clock}
-			<span class="dim">·</span> {clock}
-		{/if}
+	<span class="left">
+		<span class="session">[rv]</span>
+		<span class="window">0:{getTheme($themeName).label.toLowerCase()}*</span>
+		<span class="path">{$promptPath}</span>
 	</span>
 
-	{#if $terminalReady || narrow}
+	<span class="right">
 		<span class:busy={$agentStatus === 'streaming' || $agentStatus === 'thinking'}>
-			{agentLabel} <span class="dim">· {$questionsLeft}/10 Questions left</span>
+			{agentLabel}
 		</span>
-	{:else}
-		<span class="dim">loading xterm.js…</span>
-	{/if}
+		<span class="dim">{$questionsLeft}/10</span>
+		<span class="clock">{clock}</span>
+	</span>
 </div>
 
 <style>
 	.bar {
 		display: flex;
 		justify-content: space-between;
+		align-items: stretch;
 		gap: 12px;
-		padding: 6px 15px;
 		background: var(--chrome-bar);
-		border-top: 1px solid var(--chrome-line);
 		color: var(--term-dim);
 		font-size: 0.86em;
+		line-height: 1.9;
+		overflow: hidden;
+		white-space: nowrap;
 	}
-	.alt {
+	.left,
+	.right {
+		display: flex;
+		align-items: stretch;
+		gap: 10px;
+		min-width: 0;
+	}
+	.right {
+		padding-right: 10px;
+	}
+	.session {
+		background: var(--term-accent);
+		color: var(--term-bg);
+		padding: 0 9px;
+	}
+	.window {
+		color: var(--term-fg);
+	}
+	.path {
 		color: var(--term-alt);
-	}
-	.dim {
-		opacity: 0.75;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 	.busy {
 		color: var(--term-warn);
+	}
+	.clock {
+		color: var(--term-fg);
 	}
 </style>

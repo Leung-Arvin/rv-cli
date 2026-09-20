@@ -4,7 +4,7 @@
 	import { History } from '../commands/history';
 	import { run } from '../commands/router';
 	import type { TerminalWriter } from '../commands/types';
-	import { markTerminalReady, setDirectory, setTheme, storedTheme } from '../state/actions';
+	import { setDirectory, setTheme, storedTheme } from '../state/actions';
 	import { currentDirectory } from '../state/stores';
 	import { getTheme, isThemeName, type ThemeName } from '../themes/applyTheme';
 	import { displayPath } from '../vfs/navigator';
@@ -61,7 +61,6 @@
 			terminal.open(host);
 			fit.fit();
 			booted = true;
-			markTerminalReady();
 			terminal.focus();
 
 			observer = new ResizeObserver(() => fit.fit());
@@ -90,8 +89,8 @@
 			`${c.prompt('Guest@rv')}${c.dim(':')}${c.dir(displayPath(cwd))}${c.dim('$')} `;
 
 		const redraw = () => {
-			terminal.write(`[2K\r${promptText()}${line}`);
-			if (cursor < line.length) terminal.write(`[${line.length - cursor}D`);
+			terminal.write(`\x1b[2K\r${promptText()}${line}`);
+			if (cursor < line.length) terminal.write(`\x1b[${line.length - cursor}D`);
 		};
 
 		const setLine = (next: string) => {
@@ -129,7 +128,7 @@
 		terminal.onData((data) => {
 			if (busy) {
 				// Only Interrupts get through while a Command owns the Line.
-				if (data === '' || data === '') controller?.abort();
+				if (data === '\x03' || data === '\x1b') controller?.abort();
 				return;
 			}
 
@@ -137,42 +136,42 @@
 				case '\r':
 					void submit();
 					return;
-				case '':
+				case '\x7f':
 					if (cursor > 0) {
 						line = line.slice(0, cursor - 1) + line.slice(cursor);
 						cursor -= 1;
 						redraw();
 					}
 					return;
-				case '[A':
+				case '\x1b[A':
 					setLine(history.previous() ?? line);
 					return;
-				case '[B':
+				case '\x1b[B':
 					setLine(history.next() ?? '');
 					return;
-				case '[D':
+				case '\x1b[D':
 					if (cursor > 0) {
 						cursor -= 1;
-						terminal.write('[D');
+						terminal.write('\x1b[D');
 					}
 					return;
-				case '[C':
+				case '\x1b[C':
 					if (cursor < line.length) {
 						cursor += 1;
-						terminal.write('[C');
+						terminal.write('\x1b[C');
 					}
 					return;
-				case '[H':
-				case '':
+				case '\x1b[H':
+				case '\x01':
 					cursor = 0;
 					redraw();
 					return;
-				case '[F':
-				case '':
+				case '\x1b[F':
+				case '\x05':
 					cursor = line.length;
 					redraw();
 					return;
-				case '':
+				case '\x03':
 					// Ctrl+C copies when something is selected, and interrupts when nothing is.
 					if (terminal.hasSelection()) {
 						void navigator.clipboard?.writeText(terminal.getSelection());
@@ -183,13 +182,13 @@
 					line = '';
 					cursor = 0;
 					return;
-				case '':
+				case '\x0c':
 					terminal.clear();
 					redraw();
 					return;
 			}
 
-			if (data >= ' ' && data !== '') {
+			if (data >= ' ' && data !== '\x7f') {
 				line = line.slice(0, cursor) + data + line.slice(cursor);
 				cursor += data.length;
 				redraw();
@@ -198,58 +197,26 @@
 	}
 </script>
 
-<div class="frame">
-	<div class="chrome">
-		<span class="dot" style="background: var(--term-warn)"></span>
-		<span class="dot" style="background: var(--term-accent)"></span>
-		<span class="dot" style="background: var(--term-alt)"></span>
-		<span class="title">rv — arvin.dev</span>
-	</div>
-
-	<div class="stage">
-		{#if !booted}
-			<Banner />
-		{/if}
-		<div class="term" class:hidden={!booted} bind:this={host}></div>
-	</div>
+<div class="stage">
+	{#if !booted}
+		<Banner />
+	{/if}
+	<div class="term" class:hidden={!booted} bind:this={host}></div>
 </div>
 
 <style>
-	.frame {
-		display: flex;
-		flex-direction: column;
+	/* The Padding lives here so FitAddon measures the exact Box it gets to draw
+	   in — on .term it made xterm round up and tuck the last Row under the Bar. */
+	.stage {
 		height: 100%;
 		min-height: 0;
-		background: var(--term-bg);
-		border-radius: 10px;
-		overflow: hidden;
-	}
-	.chrome {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		padding: 8px 12px;
-		background: var(--chrome-bar);
-		border-bottom: 1px solid var(--chrome-line);
-	}
-	.dot {
-		width: 9px;
-		height: 9px;
-		border-radius: 50%;
-	}
-	.title {
-		margin-left: 6px;
-		color: var(--term-dim);
-		font-size: 0.86em;
-	}
-	.stage {
-		flex: 1;
-		min-height: 0;
 		position: relative;
+		overflow: hidden;
+		padding: 10px 12px 0;
+		background: var(--term-bg);
 	}
 	.term {
 		height: 100%;
-		padding: 10px 12px 0;
 	}
 	.hidden {
 		visibility: hidden;
