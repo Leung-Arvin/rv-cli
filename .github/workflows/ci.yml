@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# A second push to the same branch cancels the first — no point finishing a run
+# whose commit is already stale.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      # Catches the type errors that tests never reach, including the Svelte
+      # templates, which vitest does not compile.
+      - name: Typecheck
+        run: npm run check
+
+      # The build is a real check here: it is where the Cloudflare adapter reads
+      # wrangler.toml and where assets are emitted rather than inlined.
+      - name: Build
+        run: npm run build
