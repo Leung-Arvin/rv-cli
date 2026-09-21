@@ -3,10 +3,19 @@
  * A successful Prompt Injection should be able to write rude Words and nothing else.
  */
 export function sanitize(text: string): string {
-	return text
-		.replace(/\x1b\[[0-9;?]*[ -/]*[@-~]/g, '')
-		.replace(/\x1b[@-Z\\-_]/g, '')
-		.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, '');
+	return (
+		text
+			// OSC first, Payload and Terminator included. Half-eating One would
+			// leave a Base64 Blob on screen — this is how Images are drawn, and the
+			// Model is not allowed to draw.
+			.replace(/\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)?/g, '')
+			// Complete CSI Sequences: Colour, Cursor Movement, Screen Clears.
+			.replace(/\x1b\[[0-9;?]*[ -/]*[@-~]/g, '')
+			// Whatever Escape is left is a two-Character One, or a malformed CSI.
+			// Either way the following Byte belongs to It, not to the Reader.
+			.replace(/\x1b[ -~]/g, '')
+			.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, '')
+	);
 }
 
 export const SYSTEM_PROMPT_FALLBACK = [
