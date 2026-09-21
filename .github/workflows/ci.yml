@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# A second push to the same branch cancels the first — no point finishing a run
+# whose commit is already stale.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      # Catches the type errors that tests never reach, including the Svelte
+      # templates, which vitest does not compile.
+      - name: Typecheck
+        run: npm run check
+
+      # The build is a real check here: it is where the Cloudflare adapter reads
+      # wrangler.toml and where assets are emitted rather than inlined.
+      - name: Build
+        run: npm run build
+
+  # Separate job so a browser failure never looks like a unit failure. This is
+  # the only thing that proves keystrokes actually reach xterm — arrow-key
+  # history, Tab, Ctrl+C — which no unit test can reach.
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser tests
+        run: npm run test:e2e
+
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

@@ -1,0 +1,38 @@
+/* Carbon, inlined so the Banner has its Colors before any JavaScript runs. */
+:root {
+	--term-bg: #14110d;
+	--term-fg: #e6dfd1;
+	--term-dim: #8a8175;
+	--term-accent: #ef9f27;
+	--term-alt: #5dcaa5;
+	--term-warn: #f0997b;
+	--chrome-bar: #1e1a14;
+	--chrome-line: #2e281f;
+	--page-bg: #0c0a07;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	height: 100%;
+	background: var(--page-bg);
+	color: var(--term-fg);
+	font-family: ui-monospace, SFMono-Regular, 'Cascadia Mono', Menlo, Consolas, 'Liberation Mono',
+		monospace;
+	font-size: 13.5px;
+	line-height: 1.7;
+	-webkit-font-smoothing: antialiased;
+}
+
+button {
+	font-family: inherit;
+}
+
+::selection {
+	background: var(--term-dim);
+	color: var(--term-bg);
+}
