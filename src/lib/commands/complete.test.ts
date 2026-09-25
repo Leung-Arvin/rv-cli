@@ -28,8 +28,8 @@ describe('command Completion', () => {
 	});
 
 	it('extends as far as the Candidates agree', () => {
-		// feedback is the only Command starting with f.
-		expect(at('f').line).toBe('feedback ');
+		// socials is the only Command starting with s that is not an Easter Egg.
+		expect(at('so').line).toBe('socials ');
 	});
 
 	it('leaves the Line alone when nothing matches', () => {

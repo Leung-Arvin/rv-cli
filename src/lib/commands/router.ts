@@ -3,7 +3,7 @@ import type { VirtualFileSystem } from '../vfs/types';
 import { commandMap, commands } from './handlers/index';
 import { fail, ok, type CommandResult, type TerminalWriter } from './types';
 
-/** Splits on Whitespace but keeps quoted Runs together, so `ama "why Svelte?"` works. */
+/** Splits on Whitespace but keeps quoted Runs together, so `cat "A Name.md"` works. */
 export function tokenize(line: string): string[] {
 	const tokens: string[] = [];
 	const pattern = /"([^"]*)"|'([^']*)'|(\S+)/g;

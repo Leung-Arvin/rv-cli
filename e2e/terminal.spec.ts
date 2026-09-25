@@ -77,13 +77,6 @@ test('an unknown Command answers instead of going silent', async ({ page }) => {
 	await expect(screen(page)).toContainText('I do not know that One');
 });
 
-test('the Agent degrades honestly when It has no Bindings', async ({ page }) => {
-	await boot(page);
-	await run(page, 'ama what do You build?');
-	await expect(screen(page)).toContainText('rv-bot');
-	await expect(screen(page)).toContainText('only wake up on Cloudflare');
-});
-
 test('theme switching repaints and survives a Reload', async ({ page }) => {
 	await boot(page);
 	await run(page, 'theme paper');

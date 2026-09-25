@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { socials } from '../../../content.config';
-	import { setAgentStatus } from '../state/actions';
 	import { listDir } from '../vfs/navigator';
 	import type { DirNode, VfsNode, VirtualFileSystem } from '../vfs/types';
 	import { owner, tagline } from './banner';
@@ -29,47 +28,6 @@
 		else if (trail.length > 0) trail = trail.slice(0, -1);
 	}
 
-	let question = $state('');
-	let answer = $state('');
-	let asking = $state(false);
-
-	async function ask(event: SubmitEvent) {
-		event.preventDefault();
-		const asked = question.trim();
-		if (!asked || asking) return;
-
-		asking = true;
-		answer = '';
-		setAgentStatus('thinking');
-
-		try {
-			const response = await fetch('/api/ama', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ question: asked })
-			});
-			if (response.status === 429) {
-				answer = 'You have used up Your Questions for now. The Files are still free.';
-				setAgentStatus('idle');
-				return;
-			}
-			if (!response.ok || !response.body) throw new Error(`ama responded ${response.status}`);
-
-			setAgentStatus('streaming');
-			const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
-			for (;;) {
-				const { done, value } = await reader.read();
-				if (done) break;
-				if (value) answer += value;
-			}
-			setAgentStatus('idle');
-		} catch {
-			answer = 'My Agent is not answering right now. Everything else here still works.';
-			setAgentStatus('unreachable');
-		} finally {
-			asking = false;
-		}
-	}
 </script>
 
 <div class="shell">
@@ -103,22 +61,6 @@
 		{/each}
 
 		{#if trail.length === 0}
-			<form class="ask" onsubmit={ask}>
-				<input
-					bind:value={question}
-					placeholder="Ask Me anything…"
-					aria-label="Ask the Agent a Question"
-					maxlength="500"
-				/>
-				<button type="submit" disabled={asking} aria-label="Send">↑</button>
-			</form>
-
-			{#if answer}
-				<p class="answer">{answer}</p>
-			{:else if asking}
-				<p class="answer dim">thinking…</p>
-			{/if}
-
 			<div class="socials">
 				{#each socials as link (link.url)}
 					<a href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
@@ -197,40 +139,6 @@
 	}
 	article :global(.missing) {
 		color: var(--term-dim);
-	}
-	.ask {
-		display: flex;
-		gap: 8px;
-		margin: 11px 0 8px;
-	}
-	.ask input {
-		flex: 1;
-		min-width: 0;
-		font: inherit;
-		color: var(--term-fg);
-		background: var(--chrome-bar);
-		border: 1px solid var(--term-accent);
-		border-radius: 8px;
-		padding: 12px 13px;
-	}
-	.ask button {
-		color: var(--term-accent);
-		background: var(--chrome-bar);
-		border: 1px solid var(--term-accent);
-		border-radius: 8px;
-		padding: 0 15px;
-		cursor: pointer;
-	}
-	.ask button:disabled {
-		opacity: 0.5;
-	}
-	.answer {
-		border-left: 2px solid var(--term-warn);
-		border-radius: 0;
-		padding: 2px 0 2px 11px;
-		margin: 0 0 10px;
-		line-height: 1.65;
-		white-space: pre-wrap;
 	}
 	.socials {
 		display: flex;

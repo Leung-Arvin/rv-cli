@@ -1,11 +1,5 @@
 import { applyTheme, type ThemeName } from '../themes/applyTheme';
-import {
-	agentStatus,
-	currentDirectory,
-	questionsLeft,
-	themeName,
-	type AgentStatus
-} from './stores';
+import { currentDirectory, themeName } from './stores';
 
 const THEME_KEY = 'rv:theme';
 
@@ -30,12 +24,3 @@ export function storedTheme(): string | null {
 		return null;
 	}
 }
-
-export function setAgentStatus(status: AgentStatus): void {
-	agentStatus.set(status);
-}
-
-export function setQuestionsLeft(remaining: number): void {
-	questionsLeft.set(Math.max(0, remaining));
-}
-

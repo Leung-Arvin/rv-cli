@@ -7,7 +7,7 @@ export const tagline = 'Software Engineer · Ottawa';
 export const release = 'rv 1.0.0';
 
 /** Edit this One Line and the Site looks alive again. */
-export const nowLine = 'teaching a Terminal to talk back. Over-engineering It, obviously.';
+export const nowLine = 'cutting Features out of this Site until only the true Ones are left.';
 
 const VISIT_KEY = 'rv:last-visit';
 const TTY_KEY = 'rv:tty';
@@ -57,7 +57,7 @@ export function loginLine(): string {
 
 export const motdEntries: [string, string][] = [
 	['Contents', 'ls'],
-	['Ask Me', 'ama <Question>'],
+	['Read something', 'cat About.md'],
 	['Everything else', 'help']
 ];
 
