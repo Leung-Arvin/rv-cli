@@ -11,7 +11,7 @@ export interface CommandContext {
 
 /**
  * Handlers write Output through this rather than returning one big String, so a
- * streaming Command like `ama` uses the same Interface as `ls`.
+ * Command that writes as it goes uses the same Interface as one that does not.
  */
 export interface TerminalWriter {
 	write(text: string): void;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { agentStatus, promptPath, questionsLeft, themeName } from '../state/stores';
+	import { promptPath, themeName } from '../state/stores';
 	import { getTheme } from '../themes/applyTheme';
 
 	let clock = $state('');
@@ -15,15 +15,6 @@
 		const id = setInterval(tick, 30_000);
 		return () => clearInterval(id);
 	});
-
-	const agentLabel = $derived(
-		{
-			idle: 'agent idle',
-			thinking: 'agent thinking',
-			streaming: 'agent streaming',
-			unreachable: 'agent unreachable'
-		}[$agentStatus]
-	);
 </script>
 
 <!-- A tmux status line, not an App Bar: a Terminal is allowed to have One of these. -->
@@ -35,10 +26,6 @@
 	</span>
 
 	<span class="right">
-		<span class:busy={$agentStatus === 'streaming' || $agentStatus === 'thinking'}>
-			{agentLabel}
-		</span>
-		<span class="dim">{$questionsLeft}/10</span>
 		<span class="clock">{clock}</span>
 	</span>
 </div>
@@ -78,9 +65,6 @@
 		color: var(--term-alt);
 		overflow: hidden;
 		text-overflow: ellipsis;
-	}
-	.busy {
-		color: var(--term-warn);
 	}
 	.clock {
 		color: var(--term-fg);

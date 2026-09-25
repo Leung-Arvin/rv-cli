@@ -32,7 +32,7 @@ const exec = async (line: string, currentDirectory = '') => {
 
 describe('tokenize', () => {
 	it('keeps a quoted Question in one Piece', () => {
-		expect(tokenize('ama "why Svelte?"')).toEqual(['ama', 'why Svelte?']);
+		expect(tokenize('cat "Why a Terminal.md"')).toEqual(['cat', 'Why a Terminal.md']);
 	});
 });
 
@@ -74,13 +74,6 @@ describe('theme', () => {
 	it('accepts a known Theme and rejects an Invention', async () => {
 		expect((await exec('theme paper')).result.newTheme).toBe('paper');
 		expect((await exec('theme neon')).result.exitCode).toBe(1);
-	});
-});
-
-describe('ask', () => {
-	it('is an Alias for ama, as the Doc promises', async () => {
-		const { text } = await exec('ask what do You build?');
-		expect(text).toContain('rv-bot');
 	});
 });
 
